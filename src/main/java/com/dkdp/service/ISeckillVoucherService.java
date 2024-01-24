@@ -1,5 +1,6 @@
 package com.dkdp.service;
 
+import com.dkdp.dto.Result;
 import com.dkdp.entity.SeckillVoucher;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +14,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ISeckillVoucherService extends IService<SeckillVoucher> {
 
+    /**
+     * 秒杀
+     * @param voucherId
+     * @return
+     */
+    Result seckill(Long voucherId);
 }

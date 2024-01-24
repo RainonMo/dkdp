@@ -1,16 +1,18 @@
 package com.dkdp.service;
 
+import com.dkdp.dto.Result;
 import com.dkdp.entity.VoucherOrder;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * <p>
- *  服务类
+ *  订单服务
  * </p>
- *
- * @author 虎哥
- * @since 2021-12-22
  */
 public interface IVoucherOrderService extends IService<VoucherOrder> {
 
+    /**
+     * 创建订单
+     */
+    Result createVoucherOrder(Long voucherId);
 }
