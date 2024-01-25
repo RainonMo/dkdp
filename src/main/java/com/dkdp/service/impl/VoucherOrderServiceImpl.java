@@ -35,7 +35,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
             return Result.fail("不能重复下单");
         }
         //3. 扣减库存
-        boolean isSuccess = seckillVoucherService.update().setSql("stock=stock=-1").eq("voucher_id", voucherId).gt("stock", 0).update();
+        boolean isSuccess = seckillVoucherService.update().setSql("stock=stock-1").eq("voucher_id", voucherId).gt("stock", 0).update();
         if(!isSuccess){
             return Result.fail("库存不足");
         }
