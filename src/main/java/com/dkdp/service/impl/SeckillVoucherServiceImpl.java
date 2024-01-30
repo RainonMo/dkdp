@@ -6,8 +6,9 @@ import com.dkdp.mapper.SeckillVoucherMapper;
 import com.dkdp.service.ISeckillVoucherService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dkdp.service.IVoucherOrderService;
-import com.dkdp.utils.RedisIdWorker;
 import com.dkdp.utils.UserHolder;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,8 @@ import java.time.LocalDateTime;
 public class SeckillVoucherServiceImpl extends ServiceImpl<SeckillVoucherMapper, SeckillVoucher> implements ISeckillVoucherService {
     @Resource
     private ISeckillVoucherService seckillVoucherService;
+    @Resource
+    private RedissonClient redissonClient;
 
     @Override
     public Result seckill(Long voucherId) {
@@ -42,10 +45,24 @@ public class SeckillVoucherServiceImpl extends ServiceImpl<SeckillVoucherMapper,
         }
         //2. 一人一单
         Long userId = UserHolder.getUser().getId();
-        synchronized(userId.toString().intern()) {
+        //单体方案
+//        synchronized(userId.toString().intern()) {
+//            IVoucherOrderService proxy = (IVoucherOrderService) AopContext.currentProxy();
+//            return proxy.createVoucherOrder(voucherId);
+//        }
+        //分布式方案
+        RLock lock = redissonClient.getLock("lock:order:" + userId);
+        boolean isLock = lock.tryLock();
+        if(!isLock){
+            return Result.fail("不允许重复下单");
+        }
+        try {
             IVoucherOrderService proxy = (IVoucherOrderService) AopContext.currentProxy();
             return proxy.createVoucherOrder(voucherId);
+        } finally {
+            lock.unlock();
         }
+
 
     }
 }
